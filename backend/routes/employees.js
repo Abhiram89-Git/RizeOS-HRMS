@@ -9,7 +9,8 @@ router.use(protect);
 // GET all employees
 router.get('/', async (req, res) => {
   try {
-    const employees = await Employee.find({ organization: req.org._id }).sort('-joinedAt');
+    const employees = await Employee.find({ organization: req.org._id })
+      .select('-password').sort('-joinedAt');
     res.json(employees);
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
@@ -17,17 +18,22 @@ router.get('/', async (req, res) => {
 // POST create employee
 router.post('/', async (req, res) => {
   try {
-    const { name, email, role, department, skills, walletAddress } = req.body;
+    const { name, email, role, department, skills, walletAddress, password, status } = req.body;
     if (!name || !email || !role || !department)
       return res.status(400).json({ message: 'Name, email, role and department required' });
 
-    const emp = await Employee.create({
+    const emp = new Employee({
       organization: req.org._id, name, email, role, department,
-      skills: skills || [], walletAddress: walletAddress || ''
+      skills: skills || [], walletAddress: walletAddress || '',
+      status: status || 'active',
+      password: password || null
     });
-    res.status(201).json(emp);
+    await emp.save(); // triggers bcrypt pre-save hook
+    const result = emp.toObject();
+    delete result.password;
+    res.status(201).json(result);
   } catch (err) {
-    if (err.code === 11000) return res.status(409).json({ message: 'Employee email already exists' });
+    if (err.code === 11000) return res.status(409).json({ message: 'Employee email already exists in this org' });
     res.status(500).json({ message: err.message });
   }
 });
@@ -35,24 +41,36 @@ router.post('/', async (req, res) => {
 // GET single employee
 router.get('/:id', async (req, res) => {
   try {
-    const emp = await Employee.findOne({ _id: req.params.id, organization: req.org._id });
+    const emp = await Employee.findOne({ _id: req.params.id, organization: req.org._id }).select('-password');
     if (!emp) return res.status(404).json({ message: 'Employee not found' });
-    
     const tasks = await Task.find({ assignedTo: emp._id, organization: req.org._id });
     res.json({ ...emp.toObject(), tasks });
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// PUT update employee
+// PUT update employee — use findById + save so bcrypt hook runs
 router.put('/:id', async (req, res) => {
   try {
-    const emp = await Employee.findOneAndUpdate(
-      { _id: req.params.id, organization: req.org._id },
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const emp = await Employee.findOne({ _id: req.params.id, organization: req.org._id });
     if (!emp) return res.status(404).json({ message: 'Employee not found' });
-    res.json(emp);
+
+    const { name, email, role, department, skills, walletAddress, status, password, onChainHash } = req.body;
+
+    if (name) emp.name = name;
+    if (email) emp.email = email;
+    if (role) emp.role = role;
+    if (department) emp.department = department;
+    if (skills !== undefined) emp.skills = skills;
+    if (walletAddress !== undefined) emp.walletAddress = walletAddress;
+    if (status) emp.status = status;
+    if (onChainHash) emp.onChainHash = onChainHash;
+    // Only update password if a new one is provided
+    if (password && password.trim() !== '') emp.password = password;
+
+    await emp.save(); // triggers bcrypt hook if password changed
+    const result = emp.toObject();
+    delete result.password;
+    res.json(result);
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
