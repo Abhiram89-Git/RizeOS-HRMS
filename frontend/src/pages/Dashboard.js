@@ -86,7 +86,7 @@ class Dashboard extends Component {
                   <Tooltip contentStyle={{backgroundColor:'#ffd740',border:'1px solid var(--border)',borderRadius:8,color:'green'}} />
                 </PieChart>
               </ResponsiveContainer>
-            ) : <div className="empty-state"><div>No assign tasks yet</div></div>}
+            ) : <div className="empty-state"><div>No tasks yet</div></div>}
             <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',marginTop:8}}>
               {taskPieData.map((d,i) => (
                 <div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:12}}>
