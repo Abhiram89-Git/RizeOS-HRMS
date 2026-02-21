@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { API } from '../context/AuthContext';
 import { Plus, Edit2, Trash2, X, Search, User } from 'lucide-react';
 
-const EMPTY_FORM = { name:'', email:'', role:'', department:'', skills:'', walletAddress:'', status:'active' };
+const EMPTY_FORM = { name:'', email:'', role:'', department:'', skills:'', walletAddress:'', password:'', status:'active' };
 
 class Employees extends Component {
   constructor(props) {
@@ -181,6 +181,12 @@ class Employees extends Component {
                 <div className="form-group">
                   <label className="form-label">Wallet Address (optional)</label>
                   <input className="form-input" placeholder="0x..." value={form.walletAddress} onChange={this.setField('walletAddress')} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Login Password {editing ? '(leave blank to keep existing)' : '*'}</label>
+                  <input className="form-input" type="password" placeholder="Employee uses this to login at /employee"
+                    value={form.password || ''} onChange={this.setField('password')} required={!editing} />
+                  <div style={{fontSize:11,color:'var(--text-muted)',marginTop:4}}>Share with employee — they login at /employee with email + this password</div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Status</label>

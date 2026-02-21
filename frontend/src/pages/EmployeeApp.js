@@ -18,4 +18,25 @@ class EmployeeApp extends Component {
 
   handleLogin = (employee) => {
     // Clear any admin token when employee logs in to prevent mixing
-    // (employee portal is compl
+    // (employee portal is completely separate)
+    this.setState({ employee });
+  };
+
+  handleLogout = () => {
+    localStorage.removeItem('emp_token');
+    localStorage.removeItem('emp_data');
+    this.setState({ employee: null });
+  };
+
+  render() {
+    const { employee } = this.state;
+
+    if (!employee) {
+      return <EmployeeLogin onLogin={this.handleLogin} />;
+    }
+
+    return <EmployeePortal employee={employee} onLogout={this.handleLogout} />;
+  }
+}
+
+export default EmployeeApp;

@@ -49,4 +49,16 @@ export default function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="admin" element={<AdminPanel />} />
-            <Route path="emp
+            <Route path="employees" element={<Employees />} />
+            <Route path="tasks" element={<Tasks />} />
+            <Route path="ai" element={<AIInsights />} />
+            <Route path="web3" element={<Web3Page />} />
+          </Route>
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}

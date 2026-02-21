@@ -424,6 +424,15 @@ class AdminPanel extends Component {
                   <input className="form-input" placeholder="0x..." value={form.walletAddress || ''} onChange={this.setField('walletAddress')} />
                 </div>
                 <div className="form-group">
+                  <label className="form-label">Login Password {editing ? '(leave blank to keep existing)' : '*'}</label>
+                  <input className="form-input" type="password" placeholder="Employee uses this to login at /employee"
+                    value={form.password || ''} onChange={this.setField('password')}
+                    required={!editing} />
+                  <div style={{fontSize:11,color:'var(--text-muted)',marginTop:4}}>
+                    Share this password with the employee along with their email
+                  </div>
+                </div>
+                <div className="form-group">
                   <label className="form-label">Status</label>
                   <select className="form-input" value={form.status} onChange={this.setField('status')}>
                     <option value="active">Active</option>
@@ -463,4 +472,33 @@ class AdminPanel extends Component {
                 <div><div className="form-label">Email</div><div style={{ fontSize: 13 }}>{form.email}</div></div>
                 <div><div className="form-label">Department</div><div style={{ fontSize: 13 }}>{form.department}</div></div>
                 <div><div className="form-label">Productivity Score</div><div style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)' }}>{form.productivityScore}/100</div></div>
-                <div><div className="form-label">Completion Rate</div><div style={{ fontSize: 20, fontWeight: 800, color: 'var(--green)' }}>{form.taskComplet
+                <div><div className="form-label">Completion Rate</div><div style={{ fontSize: 20, fontWeight: 800, color: 'var(--green)' }}>{form.taskCompletionRate}%</div></div>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <div className="form-label">Skills</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+                  {(form.skills || []).map(s => <span key={s} className="tag">{s}</span>)}
+                </div>
+              </div>
+              {form.walletAddress && (
+                <div>
+                  <div className="form-label">Wallet Address</div>
+                  <div style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--accent2)', marginTop: 4 }}>{form.walletAddress}</div>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { this.setState({ modal: null }); setTimeout(() => this.openEdit(form), 100); }}>
+                  <Edit2 size={13} /> Edit Employee
+                </button>
+                <button className="btn btn-outline" onClick={() => this.setState({ modal: null })}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+}
+
+export default AdminPanel;
+// Note: Org ID section is added inside render() of the admin identity card
