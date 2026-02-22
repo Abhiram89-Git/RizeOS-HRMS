@@ -2,17 +2,24 @@
 
 A full-stack AI-powered Human Resource Management System built for the **RizeOS Core Team Internship Assessment**.
 
+🌐 **Live Demo:** https://rize-os-hrms.vercel.app  
+🔧 **Backend API:** https://rizeos-hrms-production.up.railway.app/api  
+👤 **Admin Portal:** https://rize-os-hrms.vercel.app/login  
+👷 **Employee Portal:** https://rize-os-hrms.vercel.app/employee  
+
 ---
 
 ## Features
 
 - Organization registration and login with JWT authentication
-- Employee management with skills, department, role, and wallet address
-- Task creation, assignment, and status tracking (Unassigned → Assigned → In Progress → Completed)
+- Separate Admin and Employee portals with role-based access
+- Employee management — skills, department, role, wallet address, password
+- Task lifecycle tracking — Assigned → In Progress → Completed
+- Employee self-service — update profile, skills and change password
 - Workforce dashboard with real-time charts and productivity indicators
-- AI-powered Smart Task Assignment — recommends the best employee for any task
-- AI Productivity Scoring — calculates employee performance scores from task history
-- Web3 workforce logging — MetaMask wallet connection, on-chain task completion and payroll proof via Polygon Mumbai
+- AI Smart Task Assignment — scores and ranks best employee for any task
+- AI Productivity Scoring — auto-calculated from task history
+- Web3 workforce logging — MetaMask wallet, on-chain task and payroll proof via Polygon Mumbai
 
 ---
 
@@ -20,15 +27,16 @@ A full-stack AI-powered Human Resource Management System built for the **RizeOS 
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React.js (Class Components), Custom CSS Design System |
+| Frontend | React.js (Class Components), Custom CSS |
 | Backend | Node.js + Express.js |
-| Database | MongoDB + Mongoose |
+| Database | MongoDB Atlas |
 | Authentication | JWT + bcrypt |
 | Charts | Recharts |
 | Blockchain | Polygon Mumbai Testnet |
 | Wallet | MetaMask |
 | Smart Contract | Solidity ^0.8.19 |
 | Web3 Library | Ethers.js v5 |
+| Deployment | Vercel (Frontend) + Railway (Backend) |
 
 ---
 
@@ -37,8 +45,8 @@ A full-stack AI-powered Human Resource Management System built for the **RizeOS 
 ```
 ai-hrms/
 ├── smart-contract/
-│   ├── WorkforceLogger.sol       ← Solidity contract for on-chain logging
-│   └── DEPLOY.md                 ← Deployment instructions
+│   ├── WorkforceLogger.sol
+│   └── DEPLOY.md
 ├── backend/
 │   ├── models/
 │   │   ├── Organization.js
@@ -49,71 +57,82 @@ ai-hrms/
 │   │   ├── employees.js
 │   │   ├── tasks.js
 │   │   ├── dashboard.js
-│   │   └── ai.js
-│   ├── middleware/
-│   │   └── auth.js
-│   ├── utils/
-│   │   └── aiEngine.js           ← Core AI logic
+│   │   ├── ai.js
+│   │   └── employeeAuth.js
+│   ├── middleware/auth.js
+│   ├── utils/aiEngine.js
 │   └── server.js
 ├── frontend/
 │   └── src/
-│       ├── context/
-│       │   └── AuthContext.js
-│       ├── utils/
-│       │   └── web3.js           ← MetaMask + contract utilities
-│       ├── components/
-│       │   └── Layout.js
+│       ├── context/AuthContext.js
+│       ├── utils/web3.js
+│       ├── components/Layout.js
 │       └── pages/
-│           ├── Login.js
-│           ├── Register.js
+│           ├── Login.js / Register.js
 │           ├── Dashboard.js
+│           ├── AdminPanel.js
 │           ├── Employees.js
 │           ├── Tasks.js
 │           ├── AIInsights.js
-│           └── Web3Page.js       ← Web3 workforce logging UI
+│           ├── Web3Page.js
+│           └── EmployeePortal.js
 ├── GTM_Strategy.md
 └── README.md
 ```
 
 ---
 
-## Setup & Run
+## Two Separate Portals
 
-### Prerequisites
-- Node.js v18+
-- MongoDB running locally or MongoDB Atlas URI
-- MetaMask browser extension (for Web3 features)
+### Admin Portal — `/login`
+- Register organization → login
+- Add employees and set their login password
+- Create tasks and assign to specific employees
+- AI Smart Assignment — get ranked recommendations
+- Dashboard — workforce analytics and charts
+- Web3 — log task completion and payroll on-chain
+
+### Employee Portal — `/employee`
+- Login with email + password (set by admin)
+- View personal task checklist
+- Update status: Assigned → In Progress → Completed
+- Edit own profile, skills, wallet address
+- Change own password
+
+---
+
+## Local Setup
 
 ### Backend
-
 ```bash
 cd backend
 npm install
-cp .env.example .env
-# Edit .env with your values
-npm run dev
 ```
 
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-### Environment Variables
-
-**backend/.env**
+Create `backend/.env`:
 ```
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/ai-hrms
 JWT_SECRET=your_secret_key
 ```
 
-**frontend/.env**
+```bash
+npm run dev
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+```
+
+Create `frontend/.env`:
 ```
 REACT_APP_API_URL=http://localhost:5000/api
+```
+
+```bash
+npm start
 ```
 
 ---
@@ -123,27 +142,27 @@ REACT_APP_API_URL=http://localhost:5000/api
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | /api/auth/register | Register organization |
-| POST | /api/auth/login | Login |
-| GET | /api/auth/me | Get current org |
+| POST | /api/auth/login | Admin login |
 | GET | /api/employees | List employees |
 | POST | /api/employees | Add employee |
 | PUT | /api/employees/:id | Update employee |
 | DELETE | /api/employees/:id | Delete employee |
 | GET | /api/tasks | List tasks |
 | POST | /api/tasks | Create task |
-| PUT | /api/tasks/:id | Update / advance status |
-| DELETE | /api/tasks/:id | Delete task |
+| PUT | /api/tasks/:id | Update task |
 | GET | /api/dashboard | Dashboard stats |
-| GET | /api/ai/assign/:taskId | Smart task assignment |
-| POST | /api/ai/recalculate-scores | Recalculate productivity scores |
+| GET | /api/ai/assign/:taskId | AI smart assignment |
+| POST | /api/employee-auth/login | Employee login |
+| GET | /api/employee-auth/my-tasks | Employee tasks |
+| PUT | /api/employee-auth/my-tasks/:id | Update task status |
+| PUT | /api/employee-auth/profile | Update profile |
+| PUT | /api/employee-auth/change-password | Change password |
 
 ---
 
-## AI Engine — Smart Task Assignment
+## AI Engine
 
-Located in `backend/utils/aiEngine.js`.
-
-Each employee is scored against a task using four weighted factors:
+**File:** `backend/utils/aiEngine.js`
 
 ```
 Match Score = Skill Match (40%) + Workload (30%) + Productivity (20%) + Completion Rate (10%)
@@ -151,15 +170,12 @@ Match Score = Skill Match (40%) + Workload (30%) + Productivity (20%) + Completi
 
 | Factor | Weight | Logic |
 |--------|--------|-------|
-| Skill Match | 40 | Matched skills / required skills |
-| Workload | 30 | Fewer active tasks = higher score |
-| Productivity | 20 | Based on historical task completion |
-| Completion Bonus | 10 | Tasks completed before deadline |
+| Skill Match | 40% | Matched skills ÷ required skills × 40 |
+| Workload | 30% | Fewer active tasks = higher score |
+| Productivity | 20% | Historical task completion score |
+| Completion Rate | 10% | % of tasks completed on time |
 
-Returns each employee ranked with a match score, recommendation tier (Highly Recommended / Good Match / Available), matched and missing skills, and a per-factor breakdown.
-
-### Productivity Score Formula
-
+**Productivity Score Formula:**
 ```
 Score = (Completion Rate × 50%) + (On-time Rate × 30%) + Recency Bonus (max 20)
 ```
@@ -168,41 +184,38 @@ Score = (Completion Rate × 50%) + (On-time Rate × 30%) + Recency Bonus (max 20
 
 ## Web3 — WorkforceLogger Smart Contract
 
-**Contract:** `smart-contract/WorkforceLogger.sol`
+**File:** `smart-contract/WorkforceLogger.sol`  
 **Network:** Polygon Mumbai Testnet
-**Functions:**
 
 | Function | Description |
 |----------|-------------|
-| `logTaskCompletion(taskId, employeeId, taskTitle)` | Records task completion on-chain |
-| `logPayroll(employeeId, amount, currency)` | Records payroll proof on-chain |
-| `logActivity(activityType, activityHash)` | Records SHA-256 hashed activity |
-| `getMyTaskLogs()` | Fetches all logs for connected wallet |
+| `logTaskCompletion()` | Records task completion on-chain |
+| `logPayroll()` | Records payroll proof on-chain |
+| `logActivity()` | Records SHA-256 hashed activity |
+| `getMyTaskLogs()` | Fetch all logs for connected wallet |
 
-**To deploy:**
-1. Open [remix.ethereum.org](https://remix.ethereum.org)
-2. Paste `WorkforceLogger.sol` → compile with version 0.8.19
-3. Deploy using Injected Provider (MetaMask) on Polygon Mumbai
-4. Copy contract address → paste into `frontend/src/utils/web3.js`
+---
+
+## Deployment
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://rize-os-hrms.vercel.app |
+| Backend | https://rizeos-hrms-production.up.railway.app |
+| Database | MongoDB Atlas — AWS Mumbai |
 
 ---
 
 ## Scalability Notes
 
-| Challenge | Approach |
+| Challenge | Solution |
 |-----------|----------|
-| 100K employees | MongoDB indexes on `organization` field + paginated responses |
-| 1M task logs | Separate audit log collection with TTL indexes |
-| AI performance | Cache scores, async recalculation via job queue |
-| Multi-org isolation | Every query scoped by `organization: req.org._id` |
+| 100K employees | MongoDB indexes on `organization` field + pagination |
+| 1M task logs | Separate audit collection with TTL indexes |
+| AI at scale | Cache scores, async recalculation via BullMQ |
+| Multi-org isolation | All queries scoped by `organization: req.org._id` |
 | Web3 at scale | Events indexed on-chain, read via The Graph protocol |
 
 ---
 
-## GTM & Monetization
-
-See [GTM_Strategy.md](./GTM_Strategy.md) for the full go-to-market plan including target personas, 3-month onboarding roadmap, ₹5,000 marketing budget breakdown, and revenue streams.
-
----
-
-*Built by Abhiram Naik — RizeOS Core Team Internship Assessment, 2026*
+*Built by Abhiram Naik — RizeOS Assessment 2026*
