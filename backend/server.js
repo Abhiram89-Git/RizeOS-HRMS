@@ -30,7 +30,11 @@ app.use('/api/employee-auth', employeeAuthRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ai-hrms')
+// Debug — log what MONGO_URI is being used
+const MONGO_URI = process.env.MONGO_URI;
+console.log('MONGO_URI starts with:', MONGO_URI ? MONGO_URI.substring(0, 20) : 'NOT SET - using localhost');
+
+mongoose.connect(MONGO_URI || 'mongodb://localhost:27017/ai-hrms')
   .then(() => {
     console.log('✅ MongoDB Connected');
     const PORT = process.env.PORT || 5000;
@@ -38,4 +42,4 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ai-hrms')
       console.log(`🚀 Server running on port ${PORT}`);
     });
   })
-  .catch(err => console.error('MongoDB connection error:', err));
+  .catch(err => console.error('MongoDB connection error:', err.message));
